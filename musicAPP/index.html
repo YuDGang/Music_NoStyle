@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音乐</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.20.0/axios.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.0/vue.js"></script>
+    <style>
+        /* 自定义控件 */
+        #resultList li{
+            cursor: pointer;
+            max-width: 300px;
+        }
+        #myMusic input{
+            width:294px;
+            height:30px;
+            font-size: large;
+            text-align: center;
+            border-radius: 1em;
+            outline-style: none;
+        }
+        .myAudio{
+            width:300px;
+            height:60px;
+            outline-style: none;
+        }
+        #myMusic strong{
+            padding:25px;
+        }
+        #myMusic h3{
+            width:300px;
+            text-align: center;
+            margin:0px;
+            cursor: pointer;
+        }
+        /* 自定义主题 */
+        html,body{
+            width:100%;
+            height:100%;
+            /* overflow:hidden; */
+            margin:0;
+        }
+        .basic{
+            width: 100%;
+            height: 100%;
+            text-shadow: 10px;
+        }
+        .theme_white{
+            color:black;
+            background:#F1F3F4;
+        }
+        .theme_black{
+            color:grey;
+            background:#282A3A;
+        }
+        .themeAudio_black{
+            background-color: #282A3A;
+        }
+    </style>
+</head>
+<body>
+    <div :class=theme[0] id="myMusic">
+        <h3 @click="changeTheme" >@Click Change Theme</h3>
+        <br/>
+        <audio class="myAudio" ref="audio" :src="musicUrl" controls autoplay loop ></audio>
+        <br/>
+        <strong v-show ="musicDisplay.song==''?false:true">
+            > {{ musicDisplay.song+' - '+musicDisplay.artists }} 
+        </strong>
+        <br/></br/>
+        <input type="textarea" @keyup.enter="searchMusic" v-model="query" placeholder="search music">
+        
+        <div id="resultList" >
+            <ul>
+                <li @click="playMusic(item.id, item.name, item.artists[0].name)"  v-for="item in musicInfo" > 
+                    {{ item.name+' - '+item.artists[0].name }} 
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        new Vue({
+            el:"#myMusic",
+            data:{
+                query:'',           //查询关键字
+                musicInfo:'',       //查询结果，歌曲列表
+                musicUrl:'',        //播放歌曲链接
+                musicDisplay:{      //展示歌曲信息 
+                    'song':'',          //歌曲名
+                    'artists':'',       //艺术家
+                },
+                theme:['basic theme_white','basic theme_black'],
+            },
+            methods:{
+                searchMusic:function(){
+                    // var that = this;
+                    console.log(this.query);
+                    axios.get('https://autumnfish.cn/search?keywords='+this.query).then(
+                        (response) => {
+                            // console.log(response);
+                            this.musicInfo = response.data.result.songs;
+                        },function(err){
+                            console.log(err);
+                        }
+                    )
+                },
+
+                playMusic:function(musicId, songName, songArtists){
+                    // var that = this;
+                    axios.get('https://autumnfish.cn/song/url?id='+musicId).then(
+                        (response) => {
+                            // console.log(response);
+                            //播放
+                            this.musicUrl=response.data.data[0].url;
+                            //展示歌曲信息
+                            this.musicDisplay={
+                                'song':songName,
+                                'artists':songArtists,
+                            };
+                        },function(err){
+                            console.log(err);
+                        }
+                    )
+                    //wait
+                },
+
+                changeTheme:function(){
+                    console.log(this.theme);
+                    this.theme.reverse();   //反转model中的theme数组排序，以改变theme[0] => 改变当前主题
+                }
+            }
+        })
+    </script>
+</body>
+</html>
