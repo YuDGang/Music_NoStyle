@@ -57,11 +57,16 @@
         .themeAudio_black{
             background-color: #282A3A;
         }
+        .explain{
+            width:300px;
+            text-align: center;
+            margin:0px;
+        }
     </style>
 </head>
 <body>
     <div :class=theme[0] id="myMusic">
-        <h3 @click="changeTheme" >@Click Change Theme</h3>
+        <h3 @click="changeTheme" >Change Theme</h3>
         <br/>
         <audio class="myAudio" ref="audio" :src="musicUrl" controls autoplay loop ></audio>
         <br/>
@@ -78,6 +83,11 @@
                 </li>
             </ul>
         </div>
+
+        <h5 class="explain" v-show="query==''?true:false">
+            Change Theme : 单击切换主题<br/>
+            Search Music : 回车搜索歌曲
+        </h5>
     </div>
 
     <script>
